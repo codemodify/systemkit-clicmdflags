@@ -10,17 +10,17 @@
 # ![](https://fonts.gstatic.com/s/i/materialicons/bookmarks/v4/24px.svg) Why this is better than `libX` or `libY`
 - In comparison to `spf13/cobra` + `spf13/pflag`
 	- __clean, lean, simple and small footprint code for similar functionality__
-	- __global flags work in front and at the end__
+	- __global flags work in front, middle and at the end, also accessible from anywhere__
 	- uses native __Go structs__ defined by the user
 	- multiple comands in one line, each with its own flags
-	- memory is freed after you execute a command, it matters with 10+ commands and the app is a daemon
+	- memory is freed after you execute a command, it matters if 10+ commands in a daemon
 
 - In comparison to `Golang flag`
 	- __clean, lean, simple and small footprint code for similar functionality__
-	- __global flags work in front and at the end__
+	- __global flags work in front, middle and at the end, also accessible from anywhere__
 	- uses native __Go structs__ defined by the user
 	- multiple comands in one line, each with its own flags
-	- has __command__ and __sub-commands__ concep
+	- has __command__ and __sub-commands__ concept
 
 
 # ![](https://fonts.gstatic.com/s/i/materialicons/bookmarks/v4/24px.svg) Install
@@ -79,6 +79,7 @@ func main() {
 }
 ```
 
-![alt text](https://raw.githubusercontent.com/codemodify/systemkit-clicmdflags/master/.dox/01.png)
-![alt text](https://raw.githubusercontent.com/codemodify/systemkit-clicmdflags/master/.dox/02.png)
-![alt text](https://raw.githubusercontent.com/codemodify/systemkit-clicmdflags/master/.dox/03.png)
+![](https://raw.githubusercontent.com/codemodify/systemkit-clicmdflags/master/.dox/01.png)
+![](https://raw.githubusercontent.com/codemodify/systemkit-clicmdflags/master/.dox/02.png)
+![](https://raw.githubusercontent.com/codemodify/systemkit-clicmdflags/master/.dox/03.png)
+
