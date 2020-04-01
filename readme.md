@@ -1,9 +1,22 @@
 # ![](https://fonts.gstatic.com/s/i/materialicons/bookmarks/v4/24px.svg) CLI Commands & Flags
-![code size](https://img.shields.io/github/languages/code-size/codemodify/systemkit-clicmdflags?style=flat-square)
-[![0-license](https://img.shields.io/badge/license-0--license-brightgreen)](https://github.com/codemodify/TheFreeLicense)
-[![godoc](https://godoc.org/github.com/codemodify/systemkit-clicmdflags?status.svg)](https://godoc.org/github.com/codemodify/systemkit-clicmdflags)
-[![go report](https://goreportcard.com/badge/github.com/codemodify/systemkit-clicmdflags)](https://goreportcard.com/report/github.com/codemodify/systemkit-clicmdflags)
-[![tests](https://godoc.org/github.com/codemodify/systemkit-clicmdflags/workflows/Test/badge.svg)](https://godoc.org/github.com/codemodify/systemkit-clicmdflags/actions)
+[![](https://img.shields.io/github/v/release/codemodify/systemkit-clicmdflags?style=flat-square)](https://github.com/codemodify/systemkit-clicmdflags/releases/latest)
+![](https://img.shields.io/github/languages/code-size/codemodify/systemkit-clicmdflags?style=flat-square)
+![](https://img.shields.io/github/last-commit/codemodify/systemkit-clicmdflags?style=flat-square)
+[![](https://img.shields.io/badge/license-0--license-brightgreen?style=flat-square)](https://github.com/codemodify/TheFreeLicense)
+
+![](https://img.shields.io/github/workflow/status/codemodify/systemkit-clicmdflags/qa?style=flat-square)
+![](https://img.shields.io/github/issues/codemodify/systemkit-clicmdflags?style=flat-square)
+[![](https://goreportcard.com/badge/github.com/codemodify/systemkit-clicmdflags?style=flat-square)](https://goreportcard.com/report/github.com/codemodify/systemkit-clicmdflags)
+
+[![](https://img.shields.io/badge/godoc-reference-brightgreen?style=flat-square)](https://godoc.org/github.com/codemodify/systemkit-clicmdflags)
+![](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)
+![](https://img.shields.io/gitter/room/codemodify/systemkit-clicmdflags?style=flat-square)
+
+![](https://img.shields.io/github/contributors/codemodify/systemkit-clicmdflags?style=flat-square)
+![](https://img.shields.io/github/stars/codemodify/systemkit-clicmdflags?style=flat-square)
+![](https://img.shields.io/github/watchers/codemodify/systemkit-clicmdflags?style=flat-square)
+![](https://img.shields.io/github/forks/codemodify/systemkit-clicmdflags?style=flat-square)
+
 
 #### Robust CLI commands and flags for your Go app. Elegant + the smallest footprint there is.
 
