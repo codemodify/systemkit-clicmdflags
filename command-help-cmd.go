@@ -13,16 +13,7 @@ func (thisRef *Command) showUsage() {
 	definedFlags := thisRef.getDefinedFlags()
 	areTheseGlobalFlags := (thisRef.parentCommand == nil)
 
-	flagNames := []string{}
-	for _, definedFlag := range definedFlags {
-		flagNames = append(flagNames, definedFlag.name)
-	}
-
-	flags := strings.Join(flagNames, " VALUE ")
-	if len(flags) > 0 {
-		flags = flags + " VALUE"
-	}
-	usageString := fmt.Sprintf(" %s %s", thisRef.Name, flags)
+	usageString := fmt.Sprintf(" %s COMMAND(s) %sFLAG(s)", thisRef.Name, flagPatterns[0])
 	cmd := thisRef.parentCommand
 	for {
 		if cmd == nil {
