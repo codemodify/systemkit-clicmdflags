@@ -1,9 +1,9 @@
-# ![](https://fonts.gstatic.com/s/i/materialicons/bookmarks/v4/24px.svg) CLI Flags
-[![GoDoc](https://godoc.org/github.com/codemodify/systemkit-logging?status.svg)](https://godoc.org/github.com/codemodify/systemkit-events)
-[![0-License](https://img.shields.io/badge/license-0--license-brightgreen)](https://github.com/codemodify/TheFreeLicense)
-[![Go Report Card](https://goreportcard.com/badge/github.com/codemodify/systemkit-logging)](https://goreportcard.com/report/github.com/codemodify/systemkit-logging)
-[![Test Status](https://github.com/danawoodman/systemservice/workflows/Test/badge.svg)](https://github.com/danawoodman/systemservice/actions)
+# ![](https://fonts.gstatic.com/s/i/materialicons/bookmarks/v4/24px.svg) CLI Commands & Flags
 ![code size](https://img.shields.io/github/languages/code-size/codemodify/systemkit-clicmdflags?style=flat-square)
+[![0-license](https://img.shields.io/badge/license-0--license-brightgreen)](https://github.com/codemodify/TheFreeLicense)
+[![godoc](https://godoc.org/github.com/codemodify/systemkit-clicmdflags?status.svg)](https://godoc.org/github.com/codemodify/systemkit-clicmdflags)
+[![go report](https://goreportcard.com/badge/github.com/codemodify/systemkit-clicmdflags)](https://goreportcard.com/report/github.com/codemodify/systemkit-clicmdflags)
+[![tests](https://godoc.org/github.com/codemodify/systemkit-clicmdflags/workflows/Test/badge.svg)](https://godoc.org/github.com/codemodify/systemkit-clicmdflags/actions)
 
 #### Robust CLI commands and flags for your Go app. Elegant + the smallest footprint there is.
 
