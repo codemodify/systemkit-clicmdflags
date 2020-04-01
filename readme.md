@@ -31,6 +31,26 @@ my-cli-app `help` __PATH/TO/COMMAND__
 go get github.com/codemodify/systemkit-clicmdflags
 ```
 
+# ![](https://fonts.gstatic.com/s/i/materialicons/bookmarks/v4/24px.svg) API
+
+&nbsp;				| &nbsp;
+---					| ---
+`flagName`			| Flag name
+`flagRequired`		| Marks a flag as required - needs inpuut from user
+`flagDefault`		| Would be the value if the flag is not set by the user
+`flagDescription`	| Text to show in help command
+
+```go
+// {flagRequired} and {flagDefault} are MUTUALLY EXCLUSIVE
+
+type fourCmdFlags struct {
+	FourCmdFlags1 bool `flagName:"fourCmdFlags1" flagRequired:"true" flagDescription:"fourCmdFlags1 description"`
+	FourCmdFlags2 bool `flagName:"fourCmdFlags2" flagDefault:"false" flagDescription:"fourCmdFlags2 description"`
+	FourCmdFlags3 bool `flagName:"fourCmdFlags3" flagRequired:"true" flagDescription:"fourCmdFlags3 description"`
+	FourCmdFlags4 bool `flagName:"fourCmdFlags4" flagDefault:"false" flagDescription:"fourCmdFlags4 description"`
+}
+```
+
 # ![](https://fonts.gstatic.com/s/i/materialicons/bookmarks/v4/24px.svg) Example
 ```go
 import (
