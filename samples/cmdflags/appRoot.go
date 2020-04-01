@@ -9,17 +9,21 @@ import (
 
 // AppRootCmdFlags -
 type AppRootCmdFlags struct {
-	JSON    bool `flagName:"json"    flagDescription:"Enables JSON output"    flagDefault:"false"`
-	Verbose bool `flagName:"verbose" flagDescription:"Enables verbose output" flagDefault:"false"`
+	JSON    bool `flagName:"json"    flagDefault:"false" flagDescription:"Enables JSON output"`
+	Verbose bool `flagName:"verbose" flagDefault:"false" flagDescription:"Enables verbose output"`
 }
 
 var appRootCmd = &clicmdflags.Command{
 	Name:        filepath.Base(os.Args[0]),
 	Description: "Displays PC information",
-	Flags:       AppRootCmdFlags{},
+	Examples: []string{
+		filepath.Base(os.Args[0]) + " -json",
+		filepath.Base(os.Args[0]) + " -json true",
+	},
+	Flags: AppRootCmdFlags{},
 }
 
 // Execute - this is a convenience call
-func Execute() {
-	appRootCmd.Execute()
+func Execute() error {
+	return appRootCmd.Execute()
 }

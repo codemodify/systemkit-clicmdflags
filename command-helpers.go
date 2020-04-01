@@ -6,56 +6,116 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
-	"strings"
 )
 
-func (thisRef *Command) flagCmdForExecuteAndPopulateTheirFlags(args []string) {
+func (thisRef *Command) flagNeededCommandsForExecuteAndPopulateTheirFlags(args []string) error {
+	var errorToReturn error
+	updateErrorToReturn := func(err error) {
+		if errorToReturn == nil {
+			errorToReturn = err
+		}
+	}
+
+	definedFlags := thisRef.getDefinedFlags()
+	setFlagWithDefaultValue := func(flagName string) {
+		for i := 0; i < len(definedFlags); i++ {
+			if definedFlags[i].name == flagName {
+				thisRef.setFlagValue(flagName, definedFlags[i].defaultValue)
+				break
+			}
+		}
+	}
+
+	requriedFlags := thisRef.getRequriedFlags()
+	setRequriedFlagAsSet := func(flagName string) {
+		for i := 0; i < len(requriedFlags); i++ {
+			if requriedFlags[i].name == flagName {
+				requriedFlags[i].wasSet = true
+				break
+			}
+		}
+	}
+
 	for index := 0; index < len(args); index++ {
-		if isFlag, flagName := thisRef.isFlag(args[index]); isFlag { // case 1 - FLAG
+
+		// case 1 - FLAG
+		if isFlag, flagName := isArgFlag(args[index]); isFlag {
+
+			// This is a flag AND it's not last item
 			nextIndex := index + 1
-			if nextIndex < len(args) { // if not reached last item
+			if nextIndex < len(args) {
 				// case 1 - next is another FLAG
-				if nextIsFlag, _ := thisRef.isFlag(args[nextIndex]); nextIsFlag {
+				if nextIsFlag, _ := isArgFlag(args[nextIndex]); nextIsFlag {
 					// if this is a `bool` flag and the value is missing then set the value to `true`
+					setFlagWithDefaultValue(flagName)
 					if thisRef.getFlag(flagName).Kind() == reflect.Bool {
 						thisRef.setFlagValue(flagName, "true")
+						setRequriedFlagAsSet(flagName)
 					}
 
 					continue
 				}
 
 				// case 2 - next is a COMMAND
-				if isCommand, _ := thisRef.isCommand(args[nextIndex]); isCommand {
+				if isCommand, _ := isArgCommand(args[nextIndex], thisRef); isCommand {
 					continue
 				}
 
 				// case 3 - this is a flag value, then set the value to the current `Flags` struct
 				flagValue := args[nextIndex]
 				thisRef.setFlagValue(flagName, flagValue)
+				setRequriedFlagAsSet(flagName)
 				index = nextIndex
-			} else {
-				// INFO: nothing to do as default value is already set by the user in the struct
+				continue
 			}
-		} else if isCommand, subCommand := thisRef.isCommand(args[index]); isCommand { // case 2 - COMMAND
+
+			// This is a flag AND it's the last item
+			// if this is a `bool` flag and the value is missing then set the value to `true`
+			setFlagWithDefaultValue(flagName)
+			if thisRef.getFlag(flagName).Kind() == reflect.Bool {
+				thisRef.setFlagValue(flagName, "true")
+				setRequriedFlagAsSet(flagName)
+			}
+
+			continue
+		}
+
+		// case 2 - COMMAND
+		if isCommand, subCommand := isArgCommand(args[index], thisRef); isCommand {
 			argsToProcess := []string{}
 			nextIndex := index + 1
 			if nextIndex < len(args) {
 				argsToProcess = args[nextIndex:]
 			}
 			subCommand.flagedForExecute = true
-			subCommand.flagCmdForExecuteAndPopulateTheirFlags(argsToProcess)
-		} else { // case 2 - UNKNOWN command or flag
-			// ignore
+			if err := subCommand.flagNeededCommandsForExecuteAndPopulateTheirFlags(argsToProcess); err != nil {
+				updateErrorToReturn(err)
+			}
+
+			continue
+		}
+
+		// case 3 - uknown COMMAND or FLAG
+		// ignore
+	}
+
+	// check that all required flags are set
+	for _, rf := range requriedFlags {
+		if !rf.wasSet {
+			updateErrorToReturn(fmt.Errorf("Missing requried flag %s", rf.name))
+			break
 		}
 	}
+
+	return errorToReturn
 }
 
-func (thisRef *Command) isCommand(arg string) (bool, *Command) {
-	if thisRef.Name == arg {
-		return true, thisRef
+func isArgCommand(arg string, command *Command) (bool, *Command) {
+	if command.Name == arg {
+		return true, command
 	}
 
-	for _, c := range thisRef.subCommands {
+	for _, c := range command.subCommands {
 		if c.Name == arg {
 			return true, c
 		}
@@ -64,15 +124,7 @@ func (thisRef *Command) isCommand(arg string) (bool, *Command) {
 	return false, nil
 }
 
-func (thisRef *Command) isFlag(arg string) (bool, string) {
-	if strings.HasPrefix(arg, flagPattern) {
-		return true, strings.Replace(arg, flagPattern, "", 1)
-	}
-
-	return false, ""
-}
-
-func (thisRef *Command) getRealRuntimeStruct(structByValOrRef reflect.Value) (reflect.Value, error) {
+func getRealRuntimeStruct(structByValOrRef reflect.Value) (reflect.Value, error) {
 	// 1. interface{} underlying data is value   and receiver is value
 	// 2. interface{} underlying data is value   and receiver is pointer
 	// 3. interface{} underlying data is pointer and receiver is value
@@ -82,7 +134,9 @@ func (thisRef *Command) getRealRuntimeStruct(structByValOrRef reflect.Value) (re
 	// Using reflection we can generate the alternate data type to our current type.
 	// If the data passed in was a value we need to generate a pointer to it.
 
-	if isNil(structByValOrRef) || thisRef.Flags == nil {
+	if !structByValOrRef.IsValid() ||
+		(reflect.ValueOf(structByValOrRef).Kind() == reflect.Ptr && reflect.ValueOf(structByValOrRef).IsNil()) {
+
 		return reflect.New(reflect.TypeOf("")), errors.New("THE THING IS NULL")
 	}
 
@@ -104,7 +158,7 @@ func (thisRef *Command) getRealRuntimeStruct(structByValOrRef reflect.Value) (re
 
 func (thisRef *Command) setFlagValue(flagName string, flagValue string) {
 	value := reflect.ValueOf(thisRef.Flags)
-	runtimeStructRef, err := thisRef.getRealRuntimeStruct(value)
+	runtimeStructRef, err := getRealRuntimeStruct(value)
 	if err != nil {
 		return
 	}
@@ -117,7 +171,7 @@ func (thisRef *Command) setFlagValue(flagName string, flagValue string) {
 		attrFlagName := runtimeStructRef.Type().Field(i).Tag.Get("flagName")
 		if attrFlagName == flagName {
 			field := runtimeStructRef.Field(i)
-			thisRef.setFieldValue(field, flagValue)
+			setFieldValue(field, flagValue)
 			updateHappened = true
 			break
 		}
@@ -132,7 +186,7 @@ func (thisRef *Command) setFlagValue(flagName string, flagValue string) {
 func (thisRef *Command) getFlag(flagName string) reflect.Value {
 	var result reflect.Value
 
-	runtimeStructRef, err := thisRef.getRealRuntimeStruct(reflect.ValueOf(thisRef.Flags))
+	runtimeStructRef, err := getRealRuntimeStruct(reflect.ValueOf(thisRef.Flags))
 	if err != nil {
 		return result
 	}
@@ -148,7 +202,7 @@ func (thisRef *Command) getFlag(flagName string) reflect.Value {
 	return result
 }
 
-func (thisRef *Command) setFieldValue(field reflect.Value, valueAsString string) {
+func setFieldValue(field reflect.Value, valueAsString string) {
 	switch field.Kind() {
 	case reflect.Invalid:
 		fallthrough
@@ -216,10 +270,6 @@ func (thisRef *Command) setFieldValue(field reflect.Value, valueAsString string)
 	}
 }
 
-func isNil(v interface{}) bool {
-	return v == nil || (reflect.ValueOf(v).Kind() == reflect.Ptr && reflect.ValueOf(v).IsNil())
-}
-
 func (thisRef *Command) getLastSubcommandFlagedForExecute() *Command {
 	if len(thisRef.subCommands) <= 0 {
 		return thisRef
@@ -234,9 +284,22 @@ func (thisRef *Command) getLastSubcommandFlagedForExecute() *Command {
 	return thisRef
 }
 
-// ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~
+func (thisRef *Command) getRootCommand() *Command {
+	rootCommand := thisRef
+	for {
+		if rootCommand.parentCommand == nil {
+			break
+		}
+
+		rootCommand = rootCommand.parentCommand
+	}
+
+	return rootCommand
+}
+
+// ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~
 // ~~~~ DEBUG Helpers
-// ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~
+// ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~
 
 func structToString(s interface{}) string {
 	d, _ := json.Marshal(s)

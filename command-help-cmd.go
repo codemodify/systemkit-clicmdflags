@@ -2,7 +2,6 @@ package clicmdflags
 
 import (
 	"fmt"
-	"reflect"
 	"strings"
 )
 
@@ -15,8 +14,8 @@ func (thisRef *Command) showUsage() {
 	areTheseGlobalFlags := (thisRef.parentCommand == nil)
 
 	flagNames := []string{}
-	for _, flag := range definedFlags {
-		flagNames = append(flagNames, flag.Name)
+	for _, definedFlag := range definedFlags {
+		flagNames = append(flagNames, definedFlag.name)
 	}
 
 	flags := strings.Join(flagNames, " VALUE ")
@@ -36,22 +35,23 @@ func (thisRef *Command) showUsage() {
 	}
 
 	fmt.Println()
+	fmt.Println("~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~")
+	fmt.Println(fmt.Sprintf(" %s", thisRef.Description))
 
-	fmt.Println(fmt.Sprintf("%s, %s", strings.ToUpper(thisRef.Name), thisRef.Description))
-
-	fmt.Println("~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~")
-	fmt.Println(fmt.Sprintf("USAGE   | %s", strings.TrimSpace(usageString)))
+	fmt.Println("~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~")
+	fmt.Println(fmt.Sprintf("    Usage | %s", strings.TrimSpace(usageString)))
 
 	if len(definedFlags) > 0 {
-		fmt.Println("~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~")
-		fmt.Print(fmt.Sprintf("FLAGS   |"))
-		for i, flag := range definedFlags {
+		fmt.Println("~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~")
+		fmt.Print(fmt.Sprintf("    Flags |"))
+		for i, definedFlag := range definedFlags {
 			if i == 0 {
-				fmt.Println(fmt.Sprintf(" %s, type=%s, default=%s, %s", flag.Name, flag.Type, flag.Default, flag.Description))
+				fmt.Println(fmt.Sprintf(" %s, type=%s, required=%s, default=%s, %s", flagPatterns[0]+definedFlag.name, definedFlag.typeName, definedFlag.isRequired, definedFlag.defaultValue, definedFlag.description))
 			} else {
-				fmt.Println(fmt.Sprintf("        | %s, type=%s, default=%s, %s", flag.Name, flag.Type, flag.Default, flag.Description))
+				fmt.Println(fmt.Sprintf("          | %s, type=%s, required=%s, default=%s, %s", flagPatterns[0]+definedFlag.name, definedFlag.typeName, definedFlag.isRequired, definedFlag.defaultValue, definedFlag.description))
 			}
 		}
+		fmt.Println(fmt.Sprintf("          |"))
 	}
 
 	if !areTheseGlobalFlags {
@@ -66,21 +66,30 @@ func (thisRef *Command) showUsage() {
 		definedFlags = rootCmd.getDefinedFlags()
 
 		if len(definedFlags) > 0 {
-			fmt.Println("        | ~~~~  global flags  ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~")
-			for _, flag := range definedFlags {
-				fmt.Println(fmt.Sprintf("        | %s, type=%s, default=%s, %s", flag.Name, flag.Type, flag.Default, flag.Description))
+			fmt.Println("          | ~~~~ global flags ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~")
+			for _, definedFlag := range definedFlags {
+				fmt.Println(fmt.Sprintf("          | %s, type=%s, required=%s, default=%s, %s", flagPatterns[0]+definedFlag.name, definedFlag.typeName, definedFlag.isRequired, definedFlag.defaultValue, definedFlag.description))
 			}
+			fmt.Println(fmt.Sprintf("          |"))
 		}
 	}
 
 	if len(thisRef.Examples) > 0 {
-		fmt.Println("~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~")
-		fmt.Println(fmt.Sprintf("EXAMPLE | %s", strings.Join(thisRef.Examples, "\n")))
+		fmt.Println("~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~")
+		fmt.Print(fmt.Sprintf(" Examples |"))
+		for i, example := range thisRef.Examples {
+			if i == 0 {
+				fmt.Println(fmt.Sprintf(" %s", example))
+			} else {
+				fmt.Println(fmt.Sprintf("          | %s", example))
+			}
+		}
+		fmt.Println(fmt.Sprintf("          |"))
 	}
 
 	if len(thisRef.subCommands) > 0 {
-		fmt.Println("~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~")
-		fmt.Print(fmt.Sprintf("SUBCMD  |"))
+		fmt.Println("~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~")
+		fmt.Print(fmt.Sprintf(" Commands |"))
 		firstOnePrinted := false
 		for _, c := range thisRef.subCommands {
 			if c != helpCmd {
@@ -88,31 +97,13 @@ func (thisRef *Command) showUsage() {
 					fmt.Println(fmt.Sprintf(" %s, %s", c.Name, c.Description))
 					firstOnePrinted = true
 				} else {
-					fmt.Println(fmt.Sprintf("        | %s, %s", c.Name, c.Description))
+					fmt.Println(fmt.Sprintf("          | %s, %s", c.Name, c.Description))
 				}
 			}
 		}
+		fmt.Println(fmt.Sprintf("          |"))
 	}
 
+	fmt.Println("~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~")
 	fmt.Println()
-}
-
-func (thisRef *Command) getDefinedFlags() []Flag {
-	result := []Flag{}
-
-	runtimeStructRef, err := thisRef.getRealRuntimeStruct(reflect.ValueOf(thisRef.Flags))
-	if err != nil {
-		return result
-	}
-
-	for i := 0; i < runtimeStructRef.NumField(); i++ {
-		result = append(result, Flag{
-			Name:        flagPattern + runtimeStructRef.Type().Field(i).Tag.Get("flagName"),
-			Description: runtimeStructRef.Type().Field(i).Tag.Get("flagDescription"),
-			Type:        runtimeStructRef.Type().Field(i).Type.Name(),
-			Default:     runtimeStructRef.Type().Field(i).Tag.Get("flagDefault"),
-		})
-	}
-
-	return result
 }

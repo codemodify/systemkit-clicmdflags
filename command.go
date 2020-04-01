@@ -8,8 +8,8 @@ import (
 type Command struct {
 	Name        string
 	Description string
-	Flags       interface{}
 	Examples    []string
+	Flags       interface{}
 	Handler     func(command *Command)
 	Hidden      bool
 
@@ -26,20 +26,17 @@ func (thisRef *Command) AddCommand(command *Command) {
 }
 
 // Execute -
-func (thisRef *Command) Execute() {
+func (thisRef *Command) Execute() error {
 	// 1. start at root & populate all flags values for all commands
-	rootCmd := thisRef
-	for {
-		if rootCmd.parentCommand == nil {
-			break
-		}
-		rootCmd = rootCmd.parentCommand
+	rootCommand := thisRef.getRootCommand()
+	rootCommand.flagedForExecute = true
+	rootCommand.subCommands = append([]*Command{helpCmd}, thisRef.subCommands...)
+
+	if err := rootCommand.flagNeededCommandsForExecuteAndPopulateTheirFlags(os.Args[1:]); err != nil &&
+		!helpCmd.flagedForExecute {
+
+		return err
 	}
-
-	thisRef.flagedForExecute = true
-	thisRef.subCommands = append([]*Command{helpCmd}, thisRef.subCommands...)
-
-	thisRef.flagCmdForExecuteAndPopulateTheirFlags(os.Args[1:])
 
 	// 2. find root and ask to parse flags
 	commandToExecute := thisRef.getLastSubcommandFlagedForExecute()
@@ -48,4 +45,6 @@ func (thisRef *Command) Execute() {
 	} else if commandToExecute.Handler != nil {
 		commandToExecute.Handler(commandToExecute)
 	}
+
+	return nil
 }

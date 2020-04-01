@@ -1,9 +1,13 @@
 package main
 
 import (
+	"log"
+
 	"github.com/codemodify/systemkit-clicmdflags/samples/cmdflags"
 )
 
 func main() {
-	cmdflags.Execute()
+	if err := cmdflags.Execute(); err != nil {
+		log.Fatal(err)
+	}
 }

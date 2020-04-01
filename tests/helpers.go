@@ -11,10 +11,10 @@ import (
 // ~~~~ root ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~
 
 type rootCmdFlags struct {
-	RootCmdFlag1 bool `flagName:"rootCmdFlag1" flagDescription:"rootCmdFlag1 description" flagDefault:"false"`
-	RootCmdFlag2 bool `flagName:"rootCmdFlag2" flagDescription:"rootCmdFlag2 description" flagDefault:"false"`
-	RootCmdFlag3 bool `flagName:"rootCmdFlag3" flagDescription:"rootCmdFlag3 description" flagDefault:"false"`
-	RootCmdFlag4 bool `flagName:"rootCmdFlag4" flagDescription:"rootCmdFlag4 description" flagDefault:"false"`
+	RootCmdFlag1 bool `flagName:"rootCmdFlag1" flagDefault:"false" flagDescription:"rootCmdFlag1 description"`
+	RootCmdFlag2 bool `flagName:"rootCmdFlag2" flagDefault:"false" flagDescription:"rootCmdFlag2 description"`
+	RootCmdFlag3 bool `flagName:"rootCmdFlag3" flagDefault:"false" flagDescription:"rootCmdFlag3 description"`
+	RootCmdFlag4 bool `flagName:"rootCmdFlag4" flagDefault:"false" flagDescription:"rootCmdFlag4 description"`
 }
 
 var rootCmd = &clicmdflags.Command{
@@ -30,10 +30,10 @@ var rootCmd = &clicmdflags.Command{
 // ~~~~ one  ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~
 
 type oneCmdFlags struct {
-	OneCmdFlag1 bool `flagName:"oneCmdFlag1" flagDescription:"oneCmdFlag1 description" flagDefault:"false"`
-	OneCmdFlag2 bool `flagName:"oneCmdFlag2" flagDescription:"oneCmdFlag2 description" flagDefault:"false"`
-	OneCmdFlag3 bool `flagName:"oneCmdFlag3" flagDescription:"oneCmdFlag3 description" flagDefault:"false"`
-	OneCmdFlag4 bool `flagName:"oneCmdFlag4" flagDescription:"oneCmdFlag4 description" flagDefault:"false"`
+	OneCmdFlag1 bool `flagName:"oneCmdFlag1" flagDefault:"false" flagDescription:"oneCmdFlag1 description"`
+	OneCmdFlag2 bool `flagName:"oneCmdFlag2" flagDefault:"false" flagDescription:"oneCmdFlag2 description"`
+	OneCmdFlag3 bool `flagName:"oneCmdFlag3" flagDefault:"false" flagDescription:"oneCmdFlag3 description"`
+	OneCmdFlag4 bool `flagName:"oneCmdFlag4" flagDefault:"false" flagDescription:"oneCmdFlag4 description"`
 }
 
 var oneCmd = &clicmdflags.Command{
@@ -49,10 +49,10 @@ var oneCmd = &clicmdflags.Command{
 // ~~~~ two  ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~
 
 type twoCmdFlags struct {
-	TwoCmdFlag1 bool `flagName:"twoCmdFlag1" flagDescription:"twoCmdFlag1 description" flagDefault:"false"`
-	TwoCmdFlag2 bool `flagName:"twoCmdFlag2" flagDescription:"twoCmdFlag2 description" flagDefault:"false"`
-	TwoCmdFlag3 bool `flagName:"twoCmdFlag3" flagDescription:"twoCmdFlag3 description" flagDefault:"false"`
-	TwoCmdFlag4 bool `flagName:"twoCmdFlag4" flagDescription:"twoCmdFlag4 description" flagDefault:"false"`
+	TwoCmdFlag1 bool `flagName:"twoCmdFlag1" flagDefault:"false" flagDescription:"twoCmdFlag1 description"`
+	TwoCmdFlag2 bool `flagName:"twoCmdFlag2" flagDefault:"false" flagDescription:"twoCmdFlag2 description"`
+	TwoCmdFlag3 bool `flagName:"twoCmdFlag3" flagDefault:"false" flagDescription:"twoCmdFlag3 description"`
+	TwoCmdFlag4 bool `flagName:"twoCmdFlag4" flagDefault:"false" flagDescription:"twoCmdFlag4 description"`
 }
 
 var twoCmd = &clicmdflags.Command{
@@ -68,10 +68,10 @@ var twoCmd = &clicmdflags.Command{
 // ~~~~ three ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~
 
 type threeCmdFlags struct {
-	ThreeCmdFlag1 bool `flagName:"threeCmdFlag1" flagDescription:"threeCmdFlag1 description" flagDefault:"false"`
-	ThreeCmdFlag2 bool `flagName:"threeCmdFlag2" flagDescription:"threeCmdFlag2 description" flagDefault:"false"`
-	ThreeCmdFlag3 bool `flagName:"threeCmdFlag3" flagDescription:"threeCmdFlag3 description" flagDefault:"false"`
-	ThreeCmdFlag4 bool `flagName:"threeCmdFlag4" flagDescription:"threeCmdFlag4 description" flagDefault:"false"`
+	ThreeCmdFlag1 bool `flagName:"threeCmdFlag1" flagDefault:"false" flagDescription:"threeCmdFlag1 description"`
+	ThreeCmdFlag2 bool `flagName:"threeCmdFlag2" flagDefault:"false" flagDescription:"threeCmdFlag2 description"`
+	ThreeCmdFlag3 bool `flagName:"threeCmdFlag3" flagDefault:"false" flagDescription:"threeCmdFlag3 description"`
+	ThreeCmdFlag4 bool `flagName:"threeCmdFlag4" flagDefault:"false" flagDescription:"threeCmdFlag4 description"`
 }
 
 var threeCmd = &clicmdflags.Command{
@@ -80,6 +80,25 @@ var threeCmd = &clicmdflags.Command{
 	Description: "This is `threeCmd` description",
 	Handler: func(thisCmd *clicmdflags.Command) {
 		fmt.Println("EXEC `threeCmd`")
+		clicmdflags.DEBUGDumpCommandFlags(thisCmd)
+	},
+}
+
+// ~~~~ four ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~
+
+type fourCmdFlags struct {
+	FourCmdFlags1 bool `flagName:"fourCmdFlags1" flagRequired:"true" flagDescription:"fourCmdFlags1 description"`
+	FourCmdFlags2 bool `flagName:"fourCmdFlags2" flagDefault:"false" flagDescription:"fourCmdFlags2 description"`
+	FourCmdFlags3 bool `flagName:"fourCmdFlags3" flagRequired:"true" flagDescription:"fourCmdFlags3 description"`
+	FourCmdFlags4 bool `flagName:"fourCmdFlags4" flagDefault:"false" flagDescription:"fourCmdFlags4 description"`
+}
+
+var fourCmd = &clicmdflags.Command{
+	Name:        "fourCmd",
+	Flags:       fourCmdFlags{},
+	Description: "This is `fourCmd` description",
+	Handler: func(thisCmd *clicmdflags.Command) {
+		fmt.Println("EXEC `fourCmd`")
 		clicmdflags.DEBUGDumpCommandFlags(thisCmd)
 	},
 }
