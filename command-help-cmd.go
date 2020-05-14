@@ -78,7 +78,7 @@ func (thisRef *Command) showUsage() {
 		fmt.Println(fmt.Sprintf("          |"))
 	}
 
-	if len(thisRef.subCommands) > 0 {
+	if len(thisRef.subCommands) > 1 {
 		fmt.Println("~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~")
 		fmt.Print(fmt.Sprintf(" Commands |"))
 		firstOnePrinted := false
