@@ -27,6 +27,16 @@ func (thisRef *Command) AddCommand(command *Command) {
 
 // Execute -
 func (thisRef *Command) Execute() error {
+	return thisRef.parseAndExecute(true)
+}
+
+// ParseFlags -
+func (thisRef *Command) ParseFlags() error {
+	return thisRef.parseAndExecute(false)
+}
+
+// Execute -
+func (thisRef *Command) parseAndExecute(execute bool) error {
 	// 1. start at root & populate all flags values for all commands
 	rootCommand := thisRef.getRootCommand()
 	rootCommand.flagedForExecute = true
@@ -42,7 +52,7 @@ func (thisRef *Command) Execute() error {
 	commandToExecute := thisRef.getLastSubcommandFlagedForExecute()
 	if helpCmd.flagedForExecute { // if `help` was asked
 		commandToExecute.showUsage()
-	} else if commandToExecute.Handler != nil {
+	} else if commandToExecute.Handler != nil && execute {
 		commandToExecute.Handler(commandToExecute)
 	}
 
