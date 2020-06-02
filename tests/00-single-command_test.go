@@ -22,7 +22,7 @@ type cmdFlags struct {
 }
 
 func Test00_SingleCommand(t *testing.T) {
-	os.Args = append(os.Args, strings.Split("-json scan", " ")...)
+	os.Args = append(os.Args, strings.Split("", " ")...)
 
 	var cmd = &clicmdflags.Command{
 		Name:        filepath.Base(os.Args[0]),

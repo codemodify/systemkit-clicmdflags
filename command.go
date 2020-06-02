@@ -50,7 +50,7 @@ func (thisRef *Command) parseAndExecute(execute bool) error {
 
 	// 2. find root and ask to parse flags
 	commandToExecute := thisRef.getLastSubcommandFlagedForExecute()
-	if helpCmd.flagedForExecute { // if `help` was asked
+	if helpCmd.flagedForExecute && execute { // if `help` was asked
 		commandToExecute.showUsage()
 	} else if commandToExecute.Handler != nil && execute {
 		commandToExecute.Handler(commandToExecute)
