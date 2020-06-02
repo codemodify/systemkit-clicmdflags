@@ -44,6 +44,7 @@ func (thisRef *Command) flagNeededCommandsForExecuteAndPopulateTheirFlags(args [
 			// This is a flag AND it's not last item
 			nextIndex := index + 1
 			if nextIndex < len(args) {
+
 				// case 1 - next is another FLAG
 				if nextIsFlag, _ := isArgFlag(args[nextIndex]); nextIsFlag {
 					// if this is a `bool` flag and the value is missing then set the value to `true`
@@ -58,6 +59,14 @@ func (thisRef *Command) flagNeededCommandsForExecuteAndPopulateTheirFlags(args [
 
 				// case 2 - next is a COMMAND
 				if isCommand, _ := isArgCommand(args[nextIndex], thisRef); isCommand {
+
+					// if this is a `bool` flag and the value is missing then set the value to `true`
+					setFlagWithDefaultValue(flagName)
+					if thisRef.getFlag(flagName).Kind() == reflect.Bool {
+						thisRef.setFlagValue(flagName, "true")
+						setRequriedFlagAsSet(flagName)
+					}
+
 					continue
 				}
 
