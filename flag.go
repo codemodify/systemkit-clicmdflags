@@ -6,8 +6,8 @@ import (
 )
 
 var flagPatterns = []string{
-	"-",
 	"--",
+	"-",
 	"/",
 }
 
