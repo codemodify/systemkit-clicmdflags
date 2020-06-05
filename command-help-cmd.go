@@ -48,9 +48,9 @@ func (thisRef *Command) showUsage() {
 		pDefinedFlags := paddedFlags(definedFlags)
 		for i, definedFlag := range pDefinedFlags {
 			if i == 0 {
-				fmt.Println(fmt.Sprintf(" %s, type=%s, required=%s, default=%s, %s", definedFlag.name, definedFlag.typeName, definedFlag.isRequired, definedFlag.defaultValue, definedFlag.description))
+				fmt.Println(fmt.Sprintf(" %s | type=%s | required=%s | default=%s | %s", definedFlag.name, definedFlag.typeName, definedFlag.isRequired, definedFlag.defaultValue, definedFlag.description))
 			} else {
-				fmt.Println(fmt.Sprintf("          %s %s, type=%s, required=%s, default=%s, %s", constVerticalLine, definedFlag.name, definedFlag.typeName, definedFlag.isRequired, definedFlag.defaultValue, definedFlag.description))
+				fmt.Println(fmt.Sprintf("          %s %s | type=%s | required=%s | default=%s | %s", constVerticalLine, definedFlag.name, definedFlag.typeName, definedFlag.isRequired, definedFlag.defaultValue, definedFlag.description))
 			}
 		}
 		fmt.Println(fmt.Sprintf("          ") + constVerticalLine)
@@ -70,7 +70,7 @@ func (thisRef *Command) showUsage() {
 		if len(definedFlags) > 0 {
 			fmt.Println("          " + constHalfCrossRightLine + strings.Repeat(constHorizontalLine, 10) + " global flags " + strings.Repeat(constHorizontalLine, 59))
 			for _, definedFlag := range pDefinedFlags {
-				fmt.Println(fmt.Sprintf("          %s %s, type=%s, required=%s, default=%s, %s", constVerticalLine, definedFlag.name, definedFlag.typeName, definedFlag.isRequired, definedFlag.defaultValue, definedFlag.description))
+				fmt.Println(fmt.Sprintf("          %s %s | type=%s | required=%s | default=%s | %s", constVerticalLine, definedFlag.name, definedFlag.typeName, definedFlag.isRequired, definedFlag.defaultValue, definedFlag.description))
 			}
 			fmt.Println(fmt.Sprintf("          ") + constVerticalLine)
 		}
@@ -97,10 +97,10 @@ func (thisRef *Command) showUsage() {
 		for _, c := range pSubCommands {
 			if c.Name != helpCmd.Name {
 				if !firstOnePrinted {
-					fmt.Println(fmt.Sprintf(" %s, %s", c.Name, c.Description))
+					fmt.Println(fmt.Sprintf(" %s | %s", c.Name, c.Description))
 					firstOnePrinted = true
 				} else {
-					fmt.Println(fmt.Sprintf("          %s %s, %s", constVerticalLine, c.Name, c.Description))
+					fmt.Println(fmt.Sprintf("          %s %s | %s", constVerticalLine, c.Name, c.Description))
 				}
 			}
 		}
