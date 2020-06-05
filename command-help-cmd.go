@@ -32,7 +32,7 @@ func (thisRef *Command) showUsage() {
 	var constVerticalLine = string('\u2502')
 	var constHalfCrossRightLine = string('\u251C')
 	var constHalfCrossUpLine = string('\u2534')
-	var constMaxLineLength = 89
+	var constMaxLineLength = 120
 
 	fmt.Println()
 	fmt.Println(strings.Repeat(constHorizontalLine, constMaxLineLength))
@@ -142,10 +142,10 @@ func (thisRef *Command) showUsage() {
 		for _, c := range pSubCommands {
 			if c.Name != helpCmd.Name {
 				if !firstOnePrinted {
-					fmt.Println(fmt.Sprintf(" %s | %s", c.Name, c.Description))
+					fmt.Println(fmt.Sprintf("  %s "+constVerticalLine+" %s", c.Name, c.Description))
 					firstOnePrinted = true
 				} else {
-					fmt.Println(fmt.Sprintf("          %s %s | %s", constVerticalLine, c.Name, c.Description))
+					fmt.Println(fmt.Sprintf("          %s  %s "+constVerticalLine+" %s", constVerticalLine, c.Name, c.Description))
 				}
 			}
 		}
