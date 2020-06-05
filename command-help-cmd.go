@@ -32,52 +32,98 @@ func (thisRef *Command) showUsage() {
 	var constVerticalLine = string('\u2502')
 	var constHalfCrossRightLine = string('\u251C')
 	var constHalfCrossUpLine = string('\u2534')
+	var constMaxLineLength = 89
 
 	fmt.Println()
-	fmt.Println(strings.Repeat(constHorizontalLine, 94))
+	fmt.Println(strings.Repeat(constHorizontalLine, constMaxLineLength))
 	fmt.Println(fmt.Sprintf(" %s", thisRef.Description))
 
-	fmt.Println(strings.Repeat(constHorizontalLine, 10) + constHalfCrossDownLine + strings.Repeat(constHorizontalLine, 83))
+	fmt.Println(strings.Repeat(constHorizontalLine, 10) + constHalfCrossDownLine + strings.Repeat(constHorizontalLine, constMaxLineLength-11))
 	fmt.Println(fmt.Sprintf("    Usage %s %s", constVerticalLine, strings.TrimSpace(usageString)))
-	fmt.Println(fmt.Sprintf("          ") + constVerticalLine)
 
 	if len(definedFlags) > 0 {
-		fmt.Println(strings.Repeat(constHorizontalLine, 10) + constCrossLine + strings.Repeat(constHorizontalLine, 83))
+		updatedDefinedFlags := []flag{}
+		updatedDefinedFlags = append(updatedDefinedFlags, flag{
+			name:         "Name",
+			typeName:     "Type",
+			isRequired:   "Required",
+			defaultValue: "Default",
+			description:  "Description",
+		})
+		updatedDefinedFlags = append(updatedDefinedFlags, definedFlags...)
+
+		if !areTheseGlobalFlags {
+			rootCmd := thisRef.parentCommand
+			for {
+				if rootCmd.parentCommand == nil {
+					break
+				}
+				rootCmd = rootCmd.parentCommand
+			}
+			updatedDefinedFlags = append(updatedDefinedFlags, flag{description: "-=GFLAGS=-"})
+			updatedDefinedFlags = append(updatedDefinedFlags, rootCmd.getDefinedFlags()...)
+		}
+
+		pDefinedFlags := paddedFlags(updatedDefinedFlags)
+
+		fmt.Println(strings.Repeat(constHorizontalLine, 10) + constCrossLine + strings.Repeat(constHorizontalLine, constMaxLineLength-11))
 		fmt.Print(fmt.Sprintf("    Flags " + constVerticalLine))
 
-		pDefinedFlags := paddedFlags(definedFlags)
 		for i, definedFlag := range pDefinedFlags {
+			definedFlag.name = " " + definedFlag.name
 			if i == 0 {
-				fmt.Println(fmt.Sprintf(" %s | type=%s | required=%s | default=%s | %s", definedFlag.name, definedFlag.typeName, definedFlag.isRequired, definedFlag.defaultValue, definedFlag.description))
+				lenOfAllColumns := len("          ") + 5 + len(definedFlag.name) + 2 + len(definedFlag.typeName) + 2 + len(definedFlag.isRequired) + 2 + len(definedFlag.defaultValue) + 2
+				fmt.Println(fmt.Sprintf(" %s "+constVerticalLine+" %s "+constVerticalLine+" %s "+constVerticalLine+" %s "+constVerticalLine+" %s", definedFlag.name, definedFlag.typeName, definedFlag.isRequired, definedFlag.defaultValue, definedFlag.description))
+				fmt.Println("          " + constVerticalLine + "  " +
+					strings.Repeat(constHorizontalLine, len(definedFlag.name)) + constCrossLine +
+					strings.Repeat(constHorizontalLine, len(definedFlag.typeName)+2) + constCrossLine +
+					strings.Repeat(constHorizontalLine, len(definedFlag.isRequired)+2) + constCrossLine +
+					strings.Repeat(constHorizontalLine, len(definedFlag.defaultValue)+2) + constCrossLine +
+					strings.Repeat(constHorizontalLine, constMaxLineLength-lenOfAllColumns) +
+					"")
 			} else {
-				fmt.Println(fmt.Sprintf("          %s %s | type=%s | required=%s | default=%s | %s", constVerticalLine, definedFlag.name, definedFlag.typeName, definedFlag.isRequired, definedFlag.defaultValue, definedFlag.description))
+				if strings.TrimSpace(definedFlag.description) == "-=GFLAGS=-" {
+					fmt.Println("          " + constHalfCrossRightLine + strings.Repeat(constHorizontalLine, constMaxLineLength-11))
+				} else {
+					fmt.Println(fmt.Sprintf("          %s %s "+constVerticalLine+" %s "+constVerticalLine+" %s "+constVerticalLine+" %s "+constVerticalLine+" %s", constVerticalLine, definedFlag.name, definedFlag.typeName, definedFlag.isRequired, definedFlag.defaultValue, definedFlag.description))
+				}
 			}
 		}
-		fmt.Println(fmt.Sprintf("          ") + constVerticalLine)
 	}
 
-	if !areTheseGlobalFlags {
-		rootCmd := thisRef.parentCommand
-		for {
-			if rootCmd.parentCommand == nil {
-				break
-			}
-			rootCmd = rootCmd.parentCommand
-		}
+	// if !areTheseGlobalFlags {
+	// 	rootCmd := thisRef.parentCommand
+	// 	for {
+	// 		if rootCmd.parentCommand == nil {
+	// 			break
+	// 		}
+	// 		rootCmd = rootCmd.parentCommand
+	// 	}
 
-		pDefinedFlags := paddedFlags(rootCmd.getDefinedFlags())
+	// 	updatedDefinedFlags := []flag{}
+	// 	updatedDefinedFlags = append(updatedDefinedFlags, flag{
+	// 		name:         "Name",
+	// 		typeName:     "Type",
+	// 		isRequired:   "Required",
+	// 		defaultValue: "Default",
+	// 		description:  "Description",
+	// 	})
+	// 	updatedDefinedFlags = append(updatedDefinedFlags, rootCmd.getDefinedFlags()...)
 
-		if len(definedFlags) > 0 {
-			fmt.Println("          " + constHalfCrossRightLine + strings.Repeat(constHorizontalLine, 10) + " global flags " + strings.Repeat(constHorizontalLine, 59))
-			for _, definedFlag := range pDefinedFlags {
-				fmt.Println(fmt.Sprintf("          %s %s | type=%s | required=%s | default=%s | %s", constVerticalLine, definedFlag.name, definedFlag.typeName, definedFlag.isRequired, definedFlag.defaultValue, definedFlag.description))
-			}
-			fmt.Println(fmt.Sprintf("          ") + constVerticalLine)
-		}
-	}
+	// 	pDefinedFlags := paddedFlags(updatedDefinedFlags)
+
+	// 	if len(definedFlags) > 0 {
+	// 		fmt.Println("          " + constHalfCrossRightLine + strings.Repeat(constHorizontalLine, constMaxLineLength-9))
+	// 		fmt.Println("          " + constHalfCrossRightLine + strings.Repeat(constHorizontalLine, 10) + " global flags " + strings.Repeat(constHorizontalLine, constMaxLineLength-35))
+	// 		fmt.Println("          " + constHalfCrossRightLine + strings.Repeat(constHorizontalLine, constMaxLineLength-9))
+	// 		for _, definedFlag := range pDefinedFlags {
+	// 			fmt.Println(fmt.Sprintf("          %s %s | %s | %s | %s | %s", constVerticalLine, definedFlag.name, definedFlag.typeName, definedFlag.isRequired, definedFlag.defaultValue, definedFlag.description))
+	// 		}
+	// 	}
+	// }
 
 	if len(thisRef.Examples) > 0 {
-		fmt.Println(strings.Repeat(constHorizontalLine, 10) + constCrossLine + strings.Repeat(constHorizontalLine, 83))
+		fmt.Println(strings.Repeat(constHorizontalLine, 10) + constCrossLine + strings.Repeat(constHorizontalLine, constMaxLineLength-11))
 		fmt.Print(fmt.Sprintf(" Examples " + constVerticalLine))
 		for i, example := range thisRef.Examples {
 			if i == 0 {
@@ -86,11 +132,10 @@ func (thisRef *Command) showUsage() {
 				fmt.Println(fmt.Sprintf("          %s %s", constVerticalLine, example))
 			}
 		}
-		fmt.Println(fmt.Sprintf("          ") + constVerticalLine)
 	}
 
 	if len(thisRef.subCommands) > 1 {
-		fmt.Println(strings.Repeat(constHorizontalLine, 10) + constCrossLine + strings.Repeat(constHorizontalLine, 83))
+		fmt.Println(strings.Repeat(constHorizontalLine, 10) + constCrossLine + strings.Repeat(constHorizontalLine, constMaxLineLength-11))
 		fmt.Print(fmt.Sprintf(" Commands " + constVerticalLine))
 		firstOnePrinted := false
 		pSubCommands := paddedCommands(thisRef.subCommands)
@@ -104,10 +149,9 @@ func (thisRef *Command) showUsage() {
 				}
 			}
 		}
-		fmt.Println(fmt.Sprintf("          ") + constVerticalLine)
 	}
 
-	fmt.Println(strings.Repeat(constHorizontalLine, 10) + constHalfCrossUpLine + strings.Repeat(constHorizontalLine, 83))
+	fmt.Println(strings.Repeat(constHorizontalLine, 10) + constHalfCrossUpLine + strings.Repeat(constHorizontalLine, constMaxLineLength-11))
 	fmt.Println()
 }
 
@@ -137,8 +181,13 @@ func paddedFlags(input []flag) []flag {
 	}
 
 	output := []flag{}
-	for _, definedFlag := range input {
-		definedFlagPaddedName := fmt.Sprintf("%"+strconv.Itoa(-definedFlagNameMaxLength)+"s", flagPatterns[0]+definedFlag.name)
+	for i, definedFlag := range input {
+		flagPrefix := ""
+		if i != 0 {
+			flagPrefix = flagPatterns[0]
+		}
+
+		definedFlagPaddedName := fmt.Sprintf("%"+strconv.Itoa(-definedFlagNameMaxLength)+"s", flagPrefix+definedFlag.name)
 		definedFlagPaddedTypeName := fmt.Sprintf("%"+strconv.Itoa(-definedFlagTypeNameMaxLength)+"s", definedFlag.typeName)
 		definedFlagPaddedIsRequired := fmt.Sprintf("%"+strconv.Itoa(-definedFlagIsRequiredMaxLength)+"s", definedFlag.isRequired)
 		definedFlagPaddedDefaultValue := fmt.Sprintf("%"+strconv.Itoa(-definedFlagDefaultValueMaxLength)+"s", definedFlag.defaultValue)
