@@ -143,16 +143,16 @@ func (thisRef *Command) showUsage() {
 					fmt.Println(fmt.Sprintf("          %s ", constVerticalLine) + strings.Repeat(constThinHorizontalLine, constShortLineLength-12))
 				}
 
-				for _, originalC := range commandsWithSubCommands {
-					if originalC.Name == strings.TrimSpace(c.Name) {
-						paddedSubCommands := paddedCommands(originalC.subCommands)
-						for _, subC := range paddedSubCommands {
-							fmt.Println(fmt.Sprintf("          %s  %s %s %s", constVerticalLine, subC.Name, constVerticalLine, subC.Description))
-						}
-
-						break
-					}
+				// for _, originalC := range commandsWithSubCommands {
+				// 	if originalC.Name == strings.TrimSpace(c.Name) {
+				paddedSubCommands := paddedCommands(c.subCommands)
+				for _, subC := range paddedSubCommands {
+					fmt.Println(fmt.Sprintf("          %s  %s %s %s", constVerticalLine, subC.Name, constVerticalLine, subC.Description))
 				}
+
+				// 		break
+				// 	}
+				// }
 
 			}
 		}
@@ -299,6 +299,7 @@ func paddedCommands(input []*Command) []Command {
 			Description: definedCommandPaddedDescription,
 			Hidden:      val.Hidden,
 			PassThrough: val.PassThrough,
+			subCommands: val.subCommands,
 		})
 	}
 
