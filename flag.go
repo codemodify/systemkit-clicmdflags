@@ -18,11 +18,12 @@ const flagDefault = "flagDefault"         // default - would be the value if not
 const flagDescription = "flagDescription" //
 
 type flag struct {
-	name         string
-	typeName     string
-	isRequired   string
-	defaultValue string
-	description  string
+	name                     string
+	typeName                 string
+	isRequired               string
+	defaultValue             string
+	defaultValueWasRequested bool
+	description              string
 
 	wasSet bool
 }
@@ -52,6 +53,10 @@ func (thisRef *Command) getDefinedFlags() []flag {
 			isRequired:   runtimeStructRef.Type().Field(i).Tag.Get(flagRequired),
 			defaultValue: runtimeStructRef.Type().Field(i).Tag.Get(flagDefault),
 			description:  runtimeStructRef.Type().Field(i).Tag.Get(flagDescription),
+		}
+
+		if _, tagFound := runtimeStructRef.Type().Field(i).Tag.Lookup(flagDefault); tagFound {
+			newFlag.defaultValueWasRequested = true
 		}
 
 		if len(strings.TrimSpace(newFlag.isRequired)) <= 0 {

@@ -1,6 +1,7 @@
 package cmdflags
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -9,8 +10,8 @@ import (
 
 // AppRootCmdFlags -
 type AppRootCmdFlags struct {
-	JSON    bool `flagName:"json"    flagDefault:"false" flagDescription:"Enables JSON output"`
-	Verbose bool `flagName:"verbose" flagDefault:"false" flagDescription:"Enables verbose output"`
+	JSON    bool `flagName:"json"    flagDefault:"true" flagDescription:"Enables JSON output"`
+	Verbose bool `flagName:"verbose" flagDescription:"Enables verbose output"`
 }
 
 var appRootCmd = &clicmdflags.Command{
@@ -19,6 +20,16 @@ var appRootCmd = &clicmdflags.Command{
 	Examples: []string{
 		filepath.Base(os.Args[0]) + " -json",
 		filepath.Base(os.Args[0]) + " -json true",
+	},
+	Handler: func(command *clicmdflags.Command) {
+		flags, ok := command.Flags.(AppRootCmdFlags)
+
+		if ok && flags.JSON {
+			fmt.Println("JSON is on")
+		}
+		if ok && flags.Verbose {
+			fmt.Println("Verbose is on")
+		}
 	},
 	Flags: AppRootCmdFlags{},
 }

@@ -25,6 +25,12 @@ func (thisRef *Command) flagNeededCommandsForExecuteAndPopulateTheirFlags(args [
 			}
 		}
 	}
+	// set all flags to their defined defaults
+	for _, definedFlag := range definedFlags {
+		if definedFlag.defaultValueWasRequested {
+			setFlagWithDefaultValue(definedFlag.name)
+		}
+	}
 
 	requriedFlags := thisRef.getRequriedFlags()
 	setRequriedFlagAsSet := func(flagName string) {
