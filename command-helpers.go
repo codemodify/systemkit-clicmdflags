@@ -42,6 +42,7 @@ func (thisRef *Command) flagNeededCommandsForExecuteAndPopulateTheirFlags(args [
 		}
 	}
 
+	subCommandFoundAlready := false
 	for index := 0; index < len(args); index++ {
 
 		// case 1 - FLAG
@@ -96,12 +97,16 @@ func (thisRef *Command) flagNeededCommandsForExecuteAndPopulateTheirFlags(args [
 		}
 
 		// case 2 - COMMAND
-		if isCommand, subCommand := isArgCommand(args[index], thisRef); isCommand {
+		if isCommand, subCommand := isArgCommand(args[index], thisRef); isCommand && !subCommandFoundAlready {
+			subCommandFoundAlready = true
+
 			argsToProcess := []string{}
 			nextIndex := index + 1
 			if nextIndex < len(args) {
 				argsToProcess = args[nextIndex:]
 			}
+
+			// commandPath := thisRef.getCommandPath()
 			subCommand.flagedForExecute = true
 			if err := subCommand.flagNeededCommandsForExecuteAndPopulateTheirFlags(argsToProcess); err != nil {
 				updateErrorToReturn(err)
@@ -133,6 +138,16 @@ func isArgCommand(arg string, command *Command) (bool, *Command) {
 	for _, c := range command.subCommands {
 		if c.Name == arg {
 			return true, c
+		}
+	}
+
+	for _, c := range command.subCommands {
+		if c.IsPassThrough {
+			for _, subC := range c.subCommands {
+				if subC.Name == arg {
+					return true, subC
+				}
+			}
 		}
 	}
 
@@ -296,6 +311,16 @@ func (thisRef *Command) getLastSubcommandFlagedForExecute() *Command {
 		}
 	}
 
+	for _, c := range thisRef.subCommands {
+		if c.IsPassThrough {
+			for _, subC := range c.subCommands {
+				if subC.flagedForExecute && c != helpCmd {
+					return c.getLastSubcommandFlagedForExecute()
+				}
+			}
+		}
+	}
+
 	return thisRef
 }
 
@@ -310,6 +335,23 @@ func (thisRef *Command) getRootCommand() *Command {
 	}
 
 	return rootCommand
+}
+
+func (thisRef *Command) getCommandPath() []string {
+	path := []string{
+		thisRef.Name,
+	}
+
+	cmd := thisRef.parentCommand
+	for {
+		if cmd == nil {
+			break
+		}
+
+		path = append(path, cmd.Name)
+	}
+
+	return path
 }
 
 // ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~

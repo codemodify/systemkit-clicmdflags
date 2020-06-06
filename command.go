@@ -6,12 +6,13 @@ import (
 
 // Command -
 type Command struct {
-	Name        string
-	Description string
-	Examples    []string
-	Flags       interface{}
-	Handler     func(command *Command)
-	Hidden      bool
+	Name          string
+	Description   string
+	Examples      []string
+	Flags         interface{}
+	Handler       func(command *Command)
+	Hidden        bool
+	IsPassThrough bool
 
 	parentCommand    *Command
 	subCommands      []*Command
