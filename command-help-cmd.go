@@ -6,14 +6,7 @@ import (
 	"strings"
 )
 
-var helpCmd = &Command{
-	Name: "help",
-}
-
 func (thisRef *Command) showUsage() {
-	definedFlags := thisRef.getDefinedFlags()
-	areTheseGlobalFlags := (thisRef.parentCommand == nil)
-
 	// get all commands
 	commandsWithNoSubCommands := []*Command{}
 	commandsWithSubCommands := []*Command{}
@@ -30,30 +23,35 @@ func (thisRef *Command) showUsage() {
 	paddedCommandsWithSubCommands := paddedCommands(commandsWithSubCommands)
 
 	// get all flags
-	flags := []flag{}
+	definedFlags := thisRef.getDefinedFlags()
+	areTheseGlobalFlags := (thisRef.parentCommand == nil)
+	updatedDefinedFlags := []flag{}
+	updatedDefinedFlags = append(updatedDefinedFlags, flag{
+		name:         "Name",
+		typeName:     "Type",
+		isRequired:   "Required",
+		defaultValue: "Default",
+		description:  "Description",
+	})
 	if len(definedFlags) > 0 {
-		updatedDefinedFlags := []flag{}
-		updatedDefinedFlags = append(updatedDefinedFlags, flag{
-			name:         "Name",
-			typeName:     "Type",
-			isRequired:   "Required",
-			defaultValue: "Default",
-			description:  "Description",
-		})
 		updatedDefinedFlags = append(updatedDefinedFlags, definedFlags...)
-
-		if !areTheseGlobalFlags {
-			rootCmd := thisRef.parentCommand
-			for {
-				if rootCmd.parentCommand == nil {
-					break
-				}
-				rootCmd = rootCmd.parentCommand
+	}
+	if !areTheseGlobalFlags {
+		rootCmd := thisRef.parentCommand
+		for {
+			if rootCmd.parentCommand == nil {
+				break
 			}
-			updatedDefinedFlags = append(updatedDefinedFlags, flag{description: "-=GFLAGS=-"})
-			updatedDefinedFlags = append(updatedDefinedFlags, rootCmd.getDefinedFlags()...)
+			rootCmd = rootCmd.parentCommand
 		}
-
+		definedFlags = rootCmd.getDefinedFlags()
+		if len(definedFlags) > 0 {
+			updatedDefinedFlags = append(updatedDefinedFlags, flag{description: "-=GFLAGS=-"})
+			updatedDefinedFlags = append(updatedDefinedFlags, definedFlags...)
+		}
+	}
+	flags := []flag{}
+	if len(updatedDefinedFlags) > 1 {
 		flags = paddedFlags(updatedDefinedFlags)
 	}
 
@@ -85,7 +83,7 @@ func (thisRef *Command) showUsage() {
 	var constCrossLine = string('\u253C')
 	var constCrossLine2 = string('\u253F')
 	var constVerticalLine = string('\u2502')
-	var constHalfCrossRightLine = string('\u251C')
+	// var constHalfCrossRightLine = string('\u251C')
 	var constMaxLineLength = longestStringFromCommandsAndFlags + (5 * 6)
 	var constShortLineLength = constMaxLineLength - 2
 
@@ -97,7 +95,7 @@ func (thisRef *Command) showUsage() {
 			break
 		}
 
-		usageString = " %" + cmd.Name + usageString
+		usageString = " " + cmd.Name + usageString
 
 		cmd = cmd.parentCommand
 	}
@@ -116,7 +114,7 @@ func (thisRef *Command) showUsage() {
 		firstOnePrinted := false
 
 		for _, c := range paddedCommandsWithNoSubCommands {
-			if strings.TrimSpace(c.Name) != helpCmd.Name && !c.Hidden {
+			if !c.Hidden {
 				if !firstOnePrinted {
 					fmt.Println(fmt.Sprintf("  %s "+constVerticalLine+" %s", c.Name, c.Description))
 					firstOnePrinted = true
@@ -127,10 +125,10 @@ func (thisRef *Command) showUsage() {
 		}
 
 		for _, c := range paddedCommandsWithSubCommands {
-			if strings.TrimSpace(c.Name) != helpCmd.Name && !c.Hidden {
+			if !c.Hidden {
 				commandDisplayData := c.Description
-				if !c.IsPassThrough {
-					commandDisplayData = c.Description + " (cmd: " + strings.TrimSpace(c.Name) + ")"
+				if !c.PassThrough {
+					commandDisplayData = c.Description + " (" + strings.TrimSpace(c.Name) + ")"
 				}
 
 				// pring sub-command as header
@@ -161,7 +159,7 @@ func (thisRef *Command) showUsage() {
 	}
 
 	// flags
-	if len(definedFlags) > 0 {
+	if len(flags) > 0 {
 		fmt.Println(strings.Repeat(constThinHorizontalLine, 10) + constCrossLine + strings.Repeat(constThinHorizontalLine, constShortLineLength-11))
 		fmt.Print(fmt.Sprintf("    Flags " + constVerticalLine))
 
@@ -180,14 +178,17 @@ func (thisRef *Command) showUsage() {
 					"")
 			} else {
 				if strings.TrimSpace(definedFlag.description) == "-=GFLAGS=-" {
-					fmt.Println(fmt.Sprintf("          %s%s%s%s%s%s%s%s%s%s",
-						constHalfCrossRightLine, strings.Repeat(constThinHorizontalLine, len(definedFlag.name)+2),
-						constCrossLine, strings.Repeat(constThinHorizontalLine, len(definedFlag.typeName)+2),
-						constCrossLine, strings.Repeat(constThinHorizontalLine, len(definedFlag.isRequired)+2),
-						constCrossLine, strings.Repeat(constThinHorizontalLine, len(definedFlag.defaultValue)+2),
-						constCrossLine, strings.Repeat(constThinHorizontalLine, constShortLineLength-lenOfAllColumns),
-					))
 					globalFlagsStarted = true
+
+					if i > 1 { // in case the command does not have any defined flags
+						fmt.Println(fmt.Sprintf("          %s  %s%s%s%s%s%s%s%s%s",
+							constVerticalLine, strings.Repeat(constThinHorizontalLine, len(definedFlag.name)), // constHalfCrossRightLine
+							constCrossLine, strings.Repeat(constThinHorizontalLine, len(definedFlag.typeName)+2),
+							constCrossLine, strings.Repeat(constThinHorizontalLine, len(definedFlag.isRequired)+2),
+							constCrossLine, strings.Repeat(constThinHorizontalLine, len(definedFlag.defaultValue)+2),
+							constCrossLine, strings.Repeat(constThinHorizontalLine, constShortLineLength-lenOfAllColumns),
+						))
+					}
 				} else {
 					if globalFlagsStarted {
 						fmt.Println(fmt.Sprintf("  Globals %s %s "+constVerticalLine+" %s "+constVerticalLine+" %s "+constVerticalLine+" %s "+constVerticalLine+" %s", constVerticalLine, definedFlag.name, definedFlag.typeName, definedFlag.isRequired, definedFlag.defaultValue, definedFlag.description))
@@ -280,28 +281,25 @@ func paddedCommands(input []*Command) []Command {
 	definedCommandDescriptionMaxLength := 0
 
 	for _, val := range input {
-		if val.Name != helpCmd.Name {
-			if len(val.Name) > definedCommandNameMaxLength {
-				definedCommandNameMaxLength = len(val.Name)
-			}
-			if len(val.Description) > definedCommandDescriptionMaxLength {
-				definedCommandDescriptionMaxLength = len(val.Description)
-			}
+		if len(val.Name) > definedCommandNameMaxLength {
+			definedCommandNameMaxLength = len(val.Name)
+		}
+		if len(val.Description) > definedCommandDescriptionMaxLength {
+			definedCommandDescriptionMaxLength = len(val.Description)
 		}
 	}
 
 	output := []Command{}
 	for _, val := range input {
-		if val.Name != helpCmd.Name {
-			definedCommandPaddedName := fmt.Sprintf("%"+strconv.Itoa(-definedCommandNameMaxLength)+"s", val.Name)
-			definedCommandPaddedDescription := fmt.Sprintf("%"+strconv.Itoa(-definedCommandDescriptionMaxLength)+"s", val.Description)
+		definedCommandPaddedName := fmt.Sprintf("%"+strconv.Itoa(-definedCommandNameMaxLength)+"s", val.Name)
+		definedCommandPaddedDescription := fmt.Sprintf("%"+strconv.Itoa(-definedCommandDescriptionMaxLength)+"s", val.Description)
 
-			output = append(output, Command{
-				Name:          definedCommandPaddedName,
-				Description:   definedCommandPaddedDescription,
-				IsPassThrough: val.IsPassThrough,
-			})
-		}
+		output = append(output, Command{
+			Name:        definedCommandPaddedName,
+			Description: definedCommandPaddedDescription,
+			Hidden:      val.Hidden,
+			PassThrough: val.PassThrough,
+		})
 	}
 
 	return output

@@ -142,7 +142,7 @@ func isArgCommand(arg string, command *Command) (bool, *Command) {
 	}
 
 	for _, c := range command.subCommands {
-		if c.IsPassThrough {
+		if c.PassThrough {
 			for _, subC := range c.subCommands {
 				if subC.Name == arg {
 					return true, subC
@@ -306,15 +306,15 @@ func (thisRef *Command) getLastSubcommandFlagedForExecute() *Command {
 	}
 
 	for _, c := range thisRef.subCommands {
-		if c.flagedForExecute && c != helpCmd {
+		if c.flagedForExecute {
 			return c.getLastSubcommandFlagedForExecute()
 		}
 	}
 
 	for _, c := range thisRef.subCommands {
-		if c.IsPassThrough {
+		if c.PassThrough {
 			for _, subC := range c.subCommands {
-				if subC.flagedForExecute && c != helpCmd {
+				if subC.flagedForExecute {
 					return c.getLastSubcommandFlagedForExecute()
 				}
 			}
@@ -369,8 +369,6 @@ func DEBUGDumpCommandFlags(command *Command) {
 	fmt.Println(structToString(command.Flags))
 
 	for _, cmd := range command.subCommands {
-		if cmd != helpCmd {
-			DEBUGDumpCommandFlags(cmd)
-		}
+		DEBUGDumpCommandFlags(cmd)
 	}
 }

@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	os.Args = append(os.Args, "add")
+	os.Args = append(os.Args, "device", "help")
 	if err := cmdflags.Execute(); err != nil {
 		log.Fatal(err)
 	}

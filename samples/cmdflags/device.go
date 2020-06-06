@@ -11,8 +11,8 @@ import (
 func init() {
 
 	cmd0 := &clicmdflags.Command{
-		Description:   "Device",
-		IsPassThrough: true,
+		Description: "Device",
+		PassThrough: true,
 	}
 
 	cmd1 := &clicmdflags.Command{

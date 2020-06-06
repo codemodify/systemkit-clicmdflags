@@ -2,17 +2,18 @@ package clicmdflags
 
 import (
 	"os"
+	"strings"
 )
 
 // Command -
 type Command struct {
-	Name          string
-	Description   string
-	Examples      []string
-	Flags         interface{}
-	Handler       func(command *Command)
-	Hidden        bool
-	IsPassThrough bool
+	Name        string
+	Description string
+	Examples    []string
+	Flags       interface{}
+	Handler     func(command *Command)
+	Hidden      bool
+	PassThrough bool
 
 	parentCommand    *Command
 	subCommands      []*Command
@@ -41,19 +42,20 @@ func (thisRef *Command) parseAndExecute(execute bool) error {
 	// 1. start at root & populate all flags values for all commands
 	rootCommand := thisRef.getRootCommand()
 	rootCommand.flagedForExecute = true
-	rootCommand.subCommands = append([]*Command{helpCmd}, thisRef.subCommands...)
 
-	if err := rootCommand.flagNeededCommandsForExecuteAndPopulateTheirFlags(os.Args[1:]); err != nil &&
-		!helpCmd.flagedForExecute {
+	argsToParse := os.Args[1:]
+	helpsIsWanted := strings.HasSuffix(strings.Join(argsToParse, " "), "help")
 
+	if err := rootCommand.flagNeededCommandsForExecuteAndPopulateTheirFlags(argsToParse); err != nil &&
+		!helpsIsWanted {
 		return err
 	}
 
 	// 2. find root and ask to parse flags
 	commandToExecute := thisRef.getLastSubcommandFlagedForExecute()
-	if helpCmd.flagedForExecute && execute { // if `help` was asked
+	if execute && helpsIsWanted {
 		commandToExecute.showUsage()
-	} else if commandToExecute.Handler != nil && execute {
+	} else if execute && commandToExecute.Handler != nil {
 		commandToExecute.Handler(commandToExecute)
 	}
 
