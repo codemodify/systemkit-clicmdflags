@@ -10,10 +10,14 @@ func (thisRef *Command) showUsage() {
 	// get all commands
 	commandsWithNoSubCommands := []*Command{}
 	commandsWithSubCommands := []*Command{}
+	subCommands := []*Command{}
 
 	for _, cmd := range thisRef.subCommands {
 		if len(cmd.subCommands) > 0 {
 			commandsWithSubCommands = append(commandsWithSubCommands, cmd)
+			for _, subCmd := range cmd.subCommands {
+				subCommands = append(subCommands, subCmd)
+			}
 		} else {
 			commandsWithNoSubCommands = append(commandsWithNoSubCommands, cmd)
 		}
@@ -21,6 +25,7 @@ func (thisRef *Command) showUsage() {
 
 	paddedCommandsWithNoSubCommands := paddedCommands(commandsWithNoSubCommands)
 	paddedCommandsWithSubCommands := paddedCommands(commandsWithSubCommands)
+	paddedSubCommands := paddedCommands(subCommands)
 
 	// get all flags
 	definedFlags := thisRef.getDefinedFlags()
@@ -57,10 +62,14 @@ func (thisRef *Command) showUsage() {
 
 	// get the longest string line
 	longestStringFromCommandsAndFlags := 0
+	longestCommandOrFlagName := 0
 	for _, sc := range paddedCommandsWithNoSubCommands {
 		l := len(sc.Name) + len(sc.Description)
 		if longestStringFromCommandsAndFlags < l {
 			longestStringFromCommandsAndFlags = l
+		}
+		if longestCommandOrFlagName < len(sc.Name) {
+			longestCommandOrFlagName = len(sc.Name)
 		}
 	}
 	for _, sc := range paddedCommandsWithSubCommands {
@@ -68,11 +77,26 @@ func (thisRef *Command) showUsage() {
 		if longestStringFromCommandsAndFlags < l {
 			longestStringFromCommandsAndFlags = l
 		}
+		if longestCommandOrFlagName < len(sc.Name) {
+			longestCommandOrFlagName = len(sc.Name)
+		}
+	}
+	for _, sc := range paddedSubCommands {
+		l := len(sc.Name) + len(sc.Description)
+		if longestStringFromCommandsAndFlags < l {
+			longestStringFromCommandsAndFlags = l
+		}
+		if longestCommandOrFlagName < len(sc.Name) {
+			longestCommandOrFlagName = len(sc.Name)
+		}
 	}
 	for _, fl := range flags {
 		l := len(fl.name) + len(fl.typeName) + len(fl.isRequired) + len(fl.defaultValue) + len(fl.description)
 		if longestStringFromCommandsAndFlags < l {
 			longestStringFromCommandsAndFlags = l
+		}
+		if longestCommandOrFlagName < len(fl.name) {
+			longestCommandOrFlagName = len(fl.name)
 		}
 	}
 
@@ -116,10 +140,10 @@ func (thisRef *Command) showUsage() {
 		for _, c := range paddedCommandsWithNoSubCommands {
 			if !c.Hidden {
 				if !firstOnePrinted {
-					fmt.Println(fmt.Sprintf("  %s "+constVerticalLine+" %s", c.Name, c.Description))
+					fmt.Println(fmt.Sprintf("  %s "+constThinHorizontalLine+" %s", fmt.Sprintf("%"+strconv.Itoa(-longestCommandOrFlagName)+"s", c.Name), c.Description))
 					firstOnePrinted = true
 				} else {
-					fmt.Println(fmt.Sprintf("          %s  %s "+constVerticalLine+" %s", constVerticalLine, c.Name, c.Description))
+					fmt.Println(fmt.Sprintf("          %s  %s "+constThinHorizontalLine+" %s", constVerticalLine, fmt.Sprintf("%"+strconv.Itoa(-longestCommandOrFlagName)+"s", c.Name), c.Description))
 				}
 			}
 		}
@@ -138,7 +162,8 @@ func (thisRef *Command) showUsage() {
 					fmt.Println(fmt.Sprintf("          %s ", constVerticalLine) + strings.Repeat(constThinHorizontalLine, constShortLineLength-12))
 					firstOnePrinted = true
 				} else {
-					fmt.Println(fmt.Sprintf("          %s ", constVerticalLine) + strings.Repeat(constThinHorizontalLine, constShortLineLength-12))
+					fmt.Println(fmt.Sprintf("          %s ", constVerticalLine))
+					// fmt.Println(fmt.Sprintf("          %s ", constVerticalLine) + strings.Repeat(constThinHorizontalLine, constShortLineLength-12))
 					fmt.Println(fmt.Sprintf("          %s  %s ", constVerticalLine, commandDisplayData))
 					fmt.Println(fmt.Sprintf("          %s ", constVerticalLine) + strings.Repeat(constThinHorizontalLine, constShortLineLength-12))
 				}
@@ -147,7 +172,9 @@ func (thisRef *Command) showUsage() {
 				// 	if originalC.Name == strings.TrimSpace(c.Name) {
 				paddedSubCommands := paddedCommands(c.subCommands)
 				for _, subC := range paddedSubCommands {
-					fmt.Println(fmt.Sprintf("          %s  %s %s %s", constVerticalLine, subC.Name, constVerticalLine, subC.Description))
+					if !subC.Hidden {
+						fmt.Println(fmt.Sprintf("          %s  %s %s %s", constVerticalLine, fmt.Sprintf("%"+strconv.Itoa(-longestCommandOrFlagName)+"s", subC.Name), constThinHorizontalLine, subC.Description))
+					}
 				}
 
 				// 		break
@@ -156,16 +183,22 @@ func (thisRef *Command) showUsage() {
 
 			}
 		}
+
+		fmt.Println(strings.Repeat(" ", 10) + constVerticalLine + strings.Repeat(" ", constShortLineLength-11))
 	}
 
 	// flags
 	if len(flags) > 0 {
-		fmt.Println(strings.Repeat(constThinHorizontalLine, 10) + constCrossLine + strings.Repeat(constThinHorizontalLine, constShortLineLength-11))
+		if len(thisRef.subCommands) > 1 {
+			fmt.Println(strings.Repeat(constThinHorizontalLine, 10) + constCrossLine + strings.Repeat(constThinHorizontalLine, constShortLineLength-11))
+		}
 		fmt.Print(fmt.Sprintf("    Flags " + constVerticalLine))
 
 		globalFlagsStarted := false
 		for i, definedFlag := range flags {
+			definedFlag.name = fmt.Sprintf("%"+strconv.Itoa(-longestCommandOrFlagName)+"s", definedFlag.name)
 			definedFlag.name = " " + definedFlag.name
+
 			lenOfAllColumns := len("          ") + 5 + len(definedFlag.name) + 2 + len(definedFlag.typeName) + 2 + len(definedFlag.isRequired) + 2 + len(definedFlag.defaultValue) + 2
 			if i == 0 {
 				fmt.Println(fmt.Sprintf(" %s "+constVerticalLine+" %s "+constVerticalLine+" %s "+constVerticalLine+" %s "+constVerticalLine+" %s", definedFlag.name, definedFlag.typeName, definedFlag.isRequired, definedFlag.defaultValue, definedFlag.description))
