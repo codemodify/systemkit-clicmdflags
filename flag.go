@@ -8,7 +8,6 @@ import (
 var flagPatterns = []string{
 	"--",
 	"-",
-	"/",
 }
 
 // {flagRequired} and {flagDefault} are MUTUALLY EXCLUSIVE
