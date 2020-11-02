@@ -122,7 +122,7 @@ func (thisRef *Command) flagNeededCommandsForExecuteAndPopulateTheirFlags(args [
 	// check that all required flags are set
 	for _, rf := range requriedFlags {
 		if !rf.wasSet {
-			updateErrorToReturn(fmt.Errorf("Missing requried flag [%s]", rf.name))
+			updateErrorToReturn(fmt.Errorf("Missing required flag [%s]", rf.name))
 			break
 		}
 	}
