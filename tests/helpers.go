@@ -102,3 +102,22 @@ var fourCmd = &clicmdflags.Command{
 		clicmdflags.DEBUGDumpCommandFlags(thisCmd)
 	},
 }
+
+// ~~~~ five ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~
+
+type fiveCmdFlags struct {
+	FiveCmdFlags1 bool `flagName:"fiveCmdFlags1" flagRequired:"true" flagHidden:"false" flagDescription:"fiveCmdFlags1 description"`
+	FiveCmdFlags2 bool `flagName:"fiveCmdFlags2" flagDefault:"false" flagHidden:"true"  flagDescription:"fiveCmdFlags2 description"`
+	FiveCmdFlags3 bool `flagName:"fiveCmdFlags3" flagRequired:"true" flagHidden:"false" flagDescription:"fiveCmdFlags3 description"`
+	FiveCmdFlags4 bool `flagName:"fiveCmdFlags4" flagDefault:"false" flagHidden:"true"  flagDescription:"fiveCmdFlags4 description"`
+}
+
+var fiveCmd = &clicmdflags.Command{
+	Name:        "fiveCmd",
+	Flags:       fiveCmdFlags{},
+	Description: "This is `fiveCmd` description",
+	Handler: func(thisCmd *clicmdflags.Command) {
+		fmt.Println("EXEC `fiveCmd`")
+		clicmdflags.DEBUGDumpCommandFlags(thisCmd)
+	},
+}

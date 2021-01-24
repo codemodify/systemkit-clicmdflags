@@ -196,6 +196,10 @@ func (thisRef *Command) showUsage() {
 
 		globalFlagsStarted := false
 		for i, definedFlag := range flags {
+			if definedFlag.isHidden == "true" {
+				continue
+			}
+
 			definedFlag.name = fmt.Sprintf("%"+strconv.Itoa(-longestCommandOrFlagName)+"s", definedFlag.name)
 			definedFlag.name = " " + definedFlag.name
 
@@ -299,6 +303,7 @@ func paddedFlags(input []flag) []flag {
 			isRequired:   definedFlagPaddedIsRequired,
 			defaultValue: definedFlagPaddedDefaultValue,
 			description:  definedFlagPaddedDescription,
+			isHidden:     definedFlag.isHidden,
 		})
 	}
 
